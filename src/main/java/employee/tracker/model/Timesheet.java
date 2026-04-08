@@ -28,7 +28,7 @@ public class Timesheet {
     private LocalDate endDate;
 
     // Relationship to TimeEntry (One-to-Many)
-    @OneToMany(mappedBy = "timesheet", cascade = CascadeType.All, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "timesheet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TimeEntry> timeEntries = new ArrayList<>();
 
     // Status Field
