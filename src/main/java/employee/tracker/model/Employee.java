@@ -28,7 +28,7 @@ public class Employee {
     // Role
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private RoleType role;                  // ADMIN, MANAGER, EMPLOYEE
+    private Role role;                  // ADMIN, MANAGER, EMPLOYEE
 
     // Schedule Relationship (One-to-Many with Shift)
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -51,7 +51,7 @@ public class Employee {
     // Constructors
     public Employee() {}
 
-    public Employee(String name, String email, String department, RoleType role) {
+    public Employee(String name, String email, String department, Role role) {
         this.name = name;
         this.email = email;
         this.department = department;
@@ -103,11 +103,11 @@ public class Employee {
         this.department = department;
     }
 
-    public RoleType getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(RoleType role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 
