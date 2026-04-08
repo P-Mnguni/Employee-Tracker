@@ -9,13 +9,17 @@ public class TimeEntry {
     
     // Primary Key
     @Id
-    @GeneratedValue(strategy = GeneationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     // Relationship to Employee (Many-to-One)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
+
+    @ManyToOne
+    @JoinColumn(name = "timesheet_id")
+    private Timesheet timesheet;
 
     // Core Time Tracking Fields
     @Column(name = "clock_in_time", nullable = false)
