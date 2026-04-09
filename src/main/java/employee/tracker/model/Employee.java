@@ -115,7 +115,7 @@ public class Employee {
         return shifts;
     }
 
-    public void setShifts(List<Shifts> shifts) {
+    public void setShifts(List<Shift> shifts) {
         this.shifts = shifts;
     }
 
