@@ -72,6 +72,7 @@ public class TimeEntry {
     public TimeEntry(Employee employee, LocalDateTime clockInTime, String gpsLocation) {
         this(employee, clockInTime);
         this.gpsLocation = gpsLocation;
+        this.status = TimeEntryStatus.PENDING;
     }
 
     // Lifecycle Callbacks
@@ -119,6 +120,51 @@ public class TimeEntry {
         }
     } 
 
+    /**
+     * Approve this time entry (manager action)
+     */
+    public void approve() {
+        if (status == TimeEntryStatus.PENDING) {
+            this.status = TimeEntryStatus.APPROVED;
+        } else {
+            throw new IllegalStateException("Cannot approve entry with status: " + status);
+        }
+    }
+
+    /**
+     * Reject this time entry (manager action)
+     * @param reason Why the entry was rejected
+     */
+    public void reject(String reason) {
+        if (status == TimeEntryStatus.PENDING) {
+            this.status = TimeEntryStatus.REJECTED;
+            this.notes = "REJECTED:: " + reason;
+        } else {
+            throw new IllegalStateException("Cannot reject entry with status: " + status);
+        }
+    }
+
+    /**
+     * Check if entry is approved
+     */
+    public boolean isApproved() {
+        return status == TimeEntryStatus.APPROVED;
+    }
+
+    /**
+     * Check if entry is pending
+     */
+    public boolean isPending() {
+        return status == TimeEntryStatus.PENDING;
+    }
+
+    /**
+     * Check if entry is rejected
+     */
+    public boolean isRejected() {
+        return status == TimeEntryStatus.REJECTED;
+    }
+
     // Getters and Setters
     public Long getId() {
         return id;
@@ -134,6 +180,14 @@ public class TimeEntry {
 
     public void setEmployee(Employee employee) {
         this.employee = employee;
+    }
+
+    public Timesheet getTimesheet() {
+        return timesheet;
+    }
+
+    public void setTimesheet(Timesheet timesheet) {
+        this.timesheet = timesheet;
     }
 
     public LocalDateTime getClockInTime() {
