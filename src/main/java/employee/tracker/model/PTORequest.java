@@ -28,7 +28,7 @@ public class PTORequest {
     // Leave Type
     @Enumerated(EnumType.STRING)
     @Column(name = "leave_type", nullable = false)
-    private PTOLeaveType leaveType;                             // PTO, SICK, UNPAID, etc.
+    private LeaveType leaveType;                             // PTO, SICK, UNPAID, etc.
 
     // Status
     @Enumerated(EnumType.STRING)
@@ -71,7 +71,7 @@ public class PTORequest {
     // Constructors
     public PTORequest() {}
 
-    public PTORequest(Employee employee, LocalDate startDate, LocalDate endDate, PTOLeaveType leaveType, String reason) {
+    public PTORequest(Employee employee, LocalDate startDate, LocalDate endDate, LeaveType leaveType, String reason) {
         this.employee = employee;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -217,11 +217,11 @@ public class PTORequest {
         }
     }
 
-    public PTOLeaveType getLeaveType() {
+    public LeaveType getLeaveType() {
         return leaveType;
     }
 
-    public void setLeaveType(PTOLeaveType leaveType) {
+    public void setLeaveType(LeaveType leaveType) {
         this.leaveType = leaveType;
     }
 
