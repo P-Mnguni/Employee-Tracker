@@ -33,7 +33,7 @@ public class PTORequest {
     // Status
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PTORequestStatus status;                            // PENDING, APPROVED, REJECTED, CANCELLED
+    private PTOStatus status;                            // PENDING, APPROVED, REJECTED, CANCELLED
 
     // Reason
     @Column(length = 500)
@@ -77,7 +77,7 @@ public class PTORequest {
         this.endDate = endDate;
         this.leaveType = leaveType;
         this.reason = reason;
-        this.status = PTORequestStatus.PENDING;
+        this.status = PTOStatus.PENDING;
         this.requestedAt = LocalDateTime.now();
 
         // Calculate days requested
@@ -94,7 +94,7 @@ public class PTORequest {
             requestedAt = LocalDateTime.now();
         }
         if (status == null) {
-            status = PTORequestStatus.PENDING;
+            status = PTOStatus.PENDING;
         }
         if (isPartialDay == null) {
             isPartialDay = false;
@@ -127,7 +127,7 @@ public class PTORequest {
      * @param approver The manager who approved it
      */
     public void approve(Employee approver) {
-        this.status = PTORequestStatus.APPROVED;
+        this.status = PTOStatus.APPROVED;
         this.approvedBy = approver;
         this.approvedAt = LocalDateTime.now();
     }
@@ -138,7 +138,7 @@ public class PTORequest {
      * @param reason Why it was rejected
      */
     public void reject(Employee approver, String reason) {
-        this.status = PTORequestStatus.REJECTED;
+        this.status = PTOStatus.REJECTED;
         this.approvedBy = approver;
         this.approvedAt = LocalDateTime.now();
         this.rejectionReason = reason;
@@ -148,8 +148,8 @@ public class PTORequest {
      * Cancel the PTO request (employee withdraws before approval)
      */
     public void cancel() {
-        if (status == PTORequestStatus.PENDING) {
-            this.status = PTORequestStatus.CANCELLED;
+        if (status == PTOStatus.PENDING) {
+            this.status = PTOStatus.CANCELLED;
         } else {
             throw new IllegalStateException("Cannot cancel request with status: " + status);
         }
@@ -159,14 +159,14 @@ public class PTORequest {
      * Check if request is still pending
      */
     public boolean isPending() {
-        return status == PTORequestStatus.PENDING;
+        return status == PTOStatus.PENDING;
     }
 
     /**
      * Check if request is approved
      */
     public boolean isApproved() {
-        return status = PTORequestStatus.APPROVED;
+        return status == PTOStatus.APPROVED;
     }
 
     /**
@@ -225,11 +225,11 @@ public class PTORequest {
         this.leaveType = leaveType;
     }
 
-    public PTORequestStatus getStatus() {
+    public PTOStatus getStatus() {
         return status;
     }
 
-    public void setStatus(PTORequestStatus status) {
+    public void setStatus(PTOStatus status) {
         this.status = status;
     }
 
