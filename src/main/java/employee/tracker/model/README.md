@@ -34,7 +34,7 @@ the data model for the Employee Tracker System.
 ```
 
 ## 🔗 Entity Relationships
-
+```
 Employee (1) ----------< (Many) TimeEntry
 |
 |----------< (Many) Timesheet
@@ -44,6 +44,7 @@ Employee (1) ----------< (Many) TimeEntry
 |----------< (Many) Shift (1) ----------< (Many) BreakPeriod
 
 OvertimeRule (no direct relationships - configuration only)
+```
 
 ## 📋 Status Workflows
 
