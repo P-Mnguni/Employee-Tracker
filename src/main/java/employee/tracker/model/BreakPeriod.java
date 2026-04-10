@@ -29,6 +29,7 @@ public class BreakPeriod {
     @Enumerated(EnumType.STRING)
     @Column(name = "break_type")
     private BreakType breakType;                            // LUNCH, SHORT_BREAK, PAID_BREAK, etc.
+    
 
     // Notes
     @Column(length = 500)
