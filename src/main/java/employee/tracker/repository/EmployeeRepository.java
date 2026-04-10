@@ -3,7 +3,6 @@ package employee.tracker.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import employee.tracker.model.Employee;
 import org.springframework.stereotype.Repository;
-import java.util.List;
 
 
 /**
