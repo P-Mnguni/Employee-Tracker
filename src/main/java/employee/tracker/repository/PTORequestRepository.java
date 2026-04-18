@@ -276,7 +276,7 @@ public interface PTORequestRepository extends JpaRepository<PTORequest, Long> {
         "AND p.status = :status " +
         "AND p.startDate <= :endDate AND p.endDate >= :startDate")
     boolean hasConflictingRequest(
-        @Param("employeeId") Employee employeeId,
+        @Param("employeeId") Long employeeId,
         @Param("status") PTOStatus status,
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate
