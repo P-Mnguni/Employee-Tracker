@@ -197,7 +197,7 @@ public interface PTORequestRepository extends JpaRepository<PTORequest, Long> {
         "AND p.status = :status " +
         "AND p.startDate BETWEEN :startDate AND :endDate")
     Double getTotalDaysTaken(
-        @Param("employeeId") Employee employeeId,
+        @Param("employeeId") Long employeeId,
         @Param("status") PTOStatus status,
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate
