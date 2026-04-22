@@ -75,20 +75,20 @@ DRAFT → PENDING → APPROVED
 **Purpose:** Leave request management and approval workflow.
 
 ```
-| Method | Description | Business Rules |
-|--------|-------------|----------------|
-| requestPTO(employeeId, startDate, endDate, type, reason) | Create leave request | Valid dates, no conflicts |
-| requestPTOWithPartial() | Partial day support | For half-day requests |
-| approvedPTO(requestId, managerId) | Manager approval | Must be PENDING, conflict check |
-| rejectPTO(requestId, managerId, reason) | Manager rejection | Must be PENDING |
-| cancelPTORequest(requestId) | Employee withdrawal | Only PENDING can be cancelled |
-| getEmployeeRequests(employeeId) | Get all employee requests | Employee must exist |
-| getEmployeeRequestsByStatus() | Filter by status | For employee dashboard |
-| getAllPendingRequests() | Manager dashboard | All pending across company |
-| getPendingRequestsByDepartment() | Department view | For department managers |
-| getTotalPTODaysTaken(employeeId, year) | Leave balance | Calculate used PTO |
-| hasOverlappingRequest() | Conflict detection | Prevent double-booking |
-| getPTOStatistics(employeeId) | Employee analytics | Returns counts by status |
+|                        Method                            |       Description         |         Business Rules          |
+|----------------------------------------------------------|---------------------------|---------------------------------|
+| requestPTO(employeeId, startDate, endDate, type, reason) | Create leave request      | Valid dates, no conflicts       |
+| requestPTOWithPartial()                                  | Partial day support       | For half-day requests           |
+| approvedPTO(requestId, managerId)                        | Manager approval          | Must be PENDING, conflict check |
+| rejectPTO(requestId, managerId, reason)                  | Manager rejection         | Must be PENDING                 |
+| cancelPTORequest(requestId)                              | Employee withdrawal       | Only PENDING can be cancelled   |
+| getEmployeeRequests(employeeId)                          | Get all employee requests | Employee must exist             |
+| getEmployeeRequestsByStatus()                            | Filter by status          | For employee dashboard          |
+| getAllPendingRequests()                                  | Manager dashboard         | All pending across company      |
+| getPendingRequestsByDepartment()                         | Department view           | For department managers         |
+| getTotalPTODaysTaken(employeeId, year)                   | Leave balance             | Calculate used PTO              |
+| hasOverlappingRequest()                                  | Conflict detection        | Prevent double-booking          |
+| getPTOStatistics(employeeId)                             | Employee analytics        | Returns counts by status        |
 ```
 
 **PTO Request Workflow:**
