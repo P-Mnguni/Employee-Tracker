@@ -8,12 +8,12 @@ operations for the Employee Tracker System.
 ### Repository Interfaces (4)
 
 ```
-| Repository | Entity | Purpose | Key Custom Queries |
-|------------|--------|---------|--------------------|
-| **EmployeeRepository** | Employee | Basic CRUD operations | None yet (extends JpaRepository) |
-| **TimeEntryRepository** | TimeEntry | Clock-in/out records | findByEmployee, date ranges, open entries, status filtering |
-| **TimesheetRepository** | Timesheet | Timesheet management | findByStatus, date ranges, department filtering, approval workflow |
-| **PTORequestRepository** | PTORequest | Leave request management | findByStatus, overlapping requests, leave type filtering, conflict detection |
+|     Repository       |   Entity   |         Purpose          |                              Key Custom Queries                              |
+|----------------------|------------|--------------------------|------------------------------------------------------------------------------|
+| EmployeeRepository   | Employee   | Basic CRUD operations    | None yet (extends JpaRepository)                                             |
+| TimeEntryRepository  | TimeEntry  | Clock-in/out records     | findByEmployee, date ranges, open entries, status filtering                  |
+| TimesheetRepository  | Timesheet  | Timesheet management     | findByStatus, date ranges, department filtering, approval workflow           |
+| PTORequestRepository | PTORequest | Leave request management | findByStatus, overlapping requests, leave type filtering, conflict detection |
 ```
 
 ## 🗄️ Repository Details
@@ -39,14 +39,14 @@ operations for the Employee Tracker System.
 **Custom queries:**
 
 ```
-|                 Method                      |              Purpose              |
-|---------------------------------------------|-----------------------------------|
-| `findByEmployee()`                          | Get all entries for an employee   |
-| `findByEmployeeAndClockInTimeBetween()`     | Get entries in data range         |
-| `findByEmployeeAndClockOutTimeIsNull()`     | Find active sessions              |
-| `findByStatus()`                            | Get entries by approval status    |
-| `getTotalMinutesWorked()`                   | Calculate total hours for payroll |
-| `existsByEmployeeIdAndClockOutTimeIsNull()` | Check if employee is clocked in   |
+|                 Method                    |              Purpose              |
+|-------------------------------------------|-----------------------------------|
+| findByEmployee()                          | Get all entries for an employee   |
+| findByEmployeeAndClockInTimeBetween()     | Get entries in data range         |
+| findByEmployeeAndClockOutTimeIsNull()     | Find active sessions              |
+| findByStatus()                            | Get entries by approval status    |
+| getTotalMinutesWorked()                   | Calculate total hours for payroll |
+| existsByEmployeeIdAndClockOutTimeIsNull() | Check if employee is clocked in   |
 ```
 
 ### 3. TimesheetRepository
@@ -55,14 +55,14 @@ operations for the Employee Tracker System.
 **Custom queries:**
 
 ```
-|                  Method                      |                   Purpose                     |
-|----------------------------------------------|-----------------------------------------------|
-| `findByEmployee()`                           | Get all timesheets for an employee            |
-| `findByStatus()`                             | Get timesheets by status                      |
-| `findByEmployeeAndStartDateBetween()`        | Get timesheets in date range                  |
-| `findByEmployeeDepartmentAndStatus()`        | Department manager view of pending timesheets |
-| `findByStatusAndStartDateBetween()`          | Payroll processing queries                    |
-| `existsByEmployeeIdAndStartDateAndEndDate()` | Prevent duplicate timesheets                  |
+|                  Method                    |                   Purpose                     |
+|--------------------------------------------|-----------------------------------------------|
+| findByEmployee()                           | Get all timesheets for an employee            |
+| findByStatus()                             | Get timesheets by status                      |
+| findByEmployeeAndStartDateBetween()        | Get timesheets in date range                  |
+| findByEmployeeDepartmentAndStatus()        | Department manager view of pending timesheets |
+| findByStatusAndStartDateBetween()          | Payroll processing queries                    |
+| existsByEmployeeIdAndStartDateAndEndDate() | Prevent duplicate timesheets                  |
 ```
 
 ### 4. PTORequestRepository
@@ -71,15 +71,15 @@ operations for the Employee Tracker System.
 **Custom queries:**
 
 ```
-|          Method             |                 Purpose                |
-|-----------------------------|----------------------------------------|
-| `findByEmployee()`          | Get all leave requests for an employee |
-| `findByStatus()`            | Get requests by status                 |
-| `findByStartDateBetween()`  | Get requests in date range             |
-| `findOverlappingRequests()` | Check for scheduling conflicts         |
-| `findByLeaveType()`         | Filter by leave type                   |
-| `getTotalDaysTaken()`       | Calculate total leave used             |
-| `hasConflictingRequests()`  | Prevent double-booking leave           |
+|          Method           |                 Purpose                |
+|---------------------------|----------------------------------------|
+| findByEmployee()          | Get all leave requests for an employee |
+| findByStatus()            | Get requests by status                 |
+| findByStartDateBetween()  | Get requests in date range             |
+| findOverlappingRequests() | Check for scheduling conflicts         |
+| findByLeaveType()         | Filter by leave type                   |
+| getTotalDaysTaken()       | Calculate total leave used             |
+| hasConflictingRequests()  | Prevent double-booking leave           |
 ```
 
 ## 🔄️ Repository Relationships

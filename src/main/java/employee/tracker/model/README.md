@@ -8,29 +8,29 @@ the data model for the Employee Tracker System.
 ### Entity Classes (8)
 
 ```
-|     Entity       |           Purpose              |                Key Fields                   |
-|------------------|--------------------------------|---------------------------------------------|
-| **Employee**     | Core user entity               | name, email, department, role               |
-| **TimeEntry**    | Individual clock-in/out record | clockInTime, clockOutTime, status           |
-| **Timesheet**    | Weekly/bi-weekly work summary  | startDate, endDate, status                  |
-| **PTORequest**   | Leave/PTO requests             | startDate, endDate, leaveType, status       |
-| **Shift**        | Scheduled work hours           | shiftDate, startTime, endTime, shiftType    |
-| **BreakPeriod**  | Break time within shifts       | startTime, endTime, breakType               |
-| **OvertimeRule** | Overtime configuration         | dailyThreshold, weeklyThreshold, multiplier |
+|   Entity     |           Purpose              |                Key Fields                   |
+|--------------|--------------------------------|---------------------------------------------|
+| Employee     | Core user entity               | name, email, department, role               |
+| TimeEntry    | Individual clock-in/out record | clockInTime, clockOutTime, status           |
+| Timesheet    | Weekly/bi-weekly work summary  | startDate, endDate, status                  |
+| PTORequest   | Leave/PTO requests             | startDate, endDate, leaveType, status       |
+| Shift        | Scheduled work hours           | shiftDate, startTime, endTime, shiftType    |
+| BreakPeriod  | Break time within shifts       | startTime, endTime, breakType               |
+| OvertimeRule | Overtime configuration         | dailyThreshold, weeklyThreshold, multiplier |
 ```
 
 ### Enum Classes (7)
 
 ```
-|        Enum         |                Values              |   Used In   |
-|---------------------|------------------------------------|-------------|
-| **Role**            | EMPLOYEE, MANAGER, ADMIN           | Employee    |
-| **TimeEntryStatus** | PENDING, APPROVED, REJECTED        | TimeEntry   |
-| **TimesheetStatus** | DRAFT, PENDING, APPROVED, REJECTED | Timesheet   |
-| **PTOStatus**       | PENDING, APPROVED, REJECTED        | PTORequest  |
-| **LeaveType**       | PTO, SICK, UNPAID                  | PTORequest  |
-| **ShiftType**       | MORNING, EVENING, NIGHT            | Shift       |
-| **BreakType**       | LUNCH, SHORT_BREAK, PAID_BREAK     | BreakPeriod |
+|      Enum       |                Values              |   Used In   |
+|-----------------|------------------------------------|-------------|
+| Role            | EMPLOYEE, MANAGER, ADMIN           | Employee    |
+| TimeEntryStatus | PENDING, APPROVED, REJECTED        | TimeEntry   |
+| TimesheetStatus | DRAFT, PENDING, APPROVED, REJECTED | Timesheet   |
+| PTOStatus       | PENDING, APPROVED, REJECTED        | PTORequest  |
+| LeaveType       | PTO, SICK, UNPAID                  | PTORequest  |
+| ShiftType       | MORNING, EVENING, NIGHT            | Shift       |
+| BreakType       | LUNCH, SHORT_BREAK, PAID_BREAK     | BreakPeriod |
 ```
 
 ## 🔗 Entity Relationships
