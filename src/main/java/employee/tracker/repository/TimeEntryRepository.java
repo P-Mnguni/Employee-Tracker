@@ -56,6 +56,21 @@ public interface TimeEntryRepository extends JpaRepository<TimeEntry, Long> {
         LocalDateTime endDate
     );
 
+    /**
+     * Find time entries for an employeeId between specific dates
+     * Used for: Weekly/monthly reports, payroll calculations
+     * 
+     * @param employeeId The ID for employee
+     * @param startDate Start of date range
+     * @param endDate End of date range
+     * @return List of time entries within the date range
+     */
+    List<TimeEntry> findByEmployeeIdAndClockInTimeBetween(
+        Long employeeId,
+        LocalDateTime startDate,
+        LocalDateTime endDate
+    );
+
 
     /**
      * Find all time entries between dates (across all employees)
