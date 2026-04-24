@@ -4,6 +4,8 @@ import employee.tracker.model.*;
 import employee.tracker.repository.EmployeeRepository;
 import employee.tracker.repository.TimeEntryRepository;
 import employee.tracker.repository.TimesheetRepository;
+import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -33,6 +35,7 @@ public class DataLoader implements CommandLineRunner {
     }
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         // Only load data if database is empty
         if (employeeRepository.count() == 0) {
@@ -168,6 +171,7 @@ public class DataLoader implements CommandLineRunner {
         timeEntryRepository.save(entry);
     }
 
+    @Transactional
     private void createTimesheet(Long employeeId, LocalDate startDate, LocalDate endDate, TimesheetStatus status, Long approverId) {
         // Fetch time entries within this date range
         LocalDateTime startDateTime = startDate.atStartOfDay();
@@ -181,26 +185,32 @@ public class DataLoader implements CommandLineRunner {
                                 .orElseThrow(() -> new RuntimeException("Employee not found"));
             
             Timesheet timesheet = new Timesheet(employee, startDate, endDate);
-            timesheet.setStatus(status);
-
-            // Add all entries to the timesheet
-            for (TimeEntry entry : entries) {
-                timesheet.addTimeEntry(entry);
-            }
-
+            
             // Set submission and approval info based on status
             if (status != TimesheetStatus.DRAFT) {
                 timesheet.setSubmittedAt(LocalDateTime.now().minusDays(5));
             }
 
             if (status == TimesheetStatus.APPROVED && approverId != null) {
+                timesheet.submit();
                 Employee approver = employeeRepository.findById(approverId)
                                     .orElseThrow(() -> new RuntimeException("Approver not found"));
                 timesheet.approve(approver);
             } else if (status == TimesheetStatus.REJECTED && approverId != null) {
+                timesheet.submit();
                 Employee approver = employeeRepository.findById(approverId)
                                     .orElseThrow(() -> new RuntimeException("Approver not found"));
                 timesheet.reject(approver, "Missing required information. Please correct and resubmit.");
+            } else if (status == TimesheetStatus.PENDING) {
+                timesheet.submit();
+            }
+
+            timesheet = timesheetRepository.save(timesheet);
+
+            // Add all entries to the timesheet
+            for (TimeEntry entry : entries) {
+                timesheet.addTimeEntry(entry);
+                timeEntryRepository.save(entry);
             }
 
             timesheetRepository.save(timesheet);
