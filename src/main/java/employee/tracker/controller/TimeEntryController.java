@@ -41,7 +41,7 @@ public class TimeEntryController {
      * @return Success message with entry details or error
      */
     @PostMapping("/clock-in")
-    public ResponseEntity<?> clockIn(@RequestParam ClockInRequest request) {
+    public ResponseEntity<?> clockIn(@RequestBody ClockInRequest request) {
         try {
             // Validate request
             if (request.getEmployeeId() == null) {
@@ -84,7 +84,7 @@ public class TimeEntryController {
      * @return Success message with updated entry or error
      */
     @PostMapping("/clock-out")
-    public ResponseEntity<?> clockOut(@RequestParam ClockOutRequest request) {
+    public ResponseEntity<?> clockOut(@RequestBody ClockOutRequest request) {
         try {
             // Validate request
             if (request.getEmployeeId() == null) {

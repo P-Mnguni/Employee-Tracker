@@ -41,7 +41,7 @@ public class TimesheetController {
      * @return Success message with timesheet details or error
      */
     @PostMapping("/submit")
-    public ResponseEntity<?> submitTimesheet(@RequestParam TimesheetRequest request) {
+    public ResponseEntity<?> submitTimesheet(@RequestBody TimesheetRequest request) {
         try {
             // Validate request
             if (!request.isValid()) {

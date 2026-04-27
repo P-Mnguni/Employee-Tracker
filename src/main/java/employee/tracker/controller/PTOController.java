@@ -42,7 +42,7 @@ public class PTOController {
      * @return Success message with request details or error
      */
     @PostMapping("/request")
-    public ResponseEntity<?> requestPTO(@RequestParam PTORequestDTO request) {
+    public ResponseEntity<?> requestPTO(@RequestBody PTORequestDTO request) {
         try {
             // Validate request
             if (!request.isValid()) {
