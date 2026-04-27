@@ -1,5 +1,7 @@
 package employee.tracker.controller;
 
+import employee.tracker.dto.PTORequestDTO;
+
 import employee.tracker.model.PTORequest;
 import employee.tracker.model.PTOStatus;
 import employee.tracker.model.LeaveType;
@@ -34,84 +36,61 @@ public class PTOController {
      * Request PTO Endpoint
      * POST /api/pto/request
      * 
-     * Input: employeeId, startDate, endDate, type, reason
+     * Input: PTORequestDTO (JSON body with employeeId, dates, type, reason)
      * 
-     * @param employeeId The ID of the employee requesting leave
-     * @param startDate Start date of leave (format: yyyy-MM-dd)
-     * @param endDate End date of leave
-     * @param type Type of leave (PTO, SICK, UNPAID)
-     * @param reason Reason for leave
+     * @param request The PTO request PTO
      * @return Success message with request details or error
      */
     @PostMapping("/request")
-    public ResponseEntity<?> requestPTO(
-        @RequestParam Long employeeId,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-        @RequestParam LeaveType type,
-        @RequestParam(required = false) String reason
-    ) {
+    public ResponseEntity<?> requestPTO(@RequestParam PTORequestDTO request) {
         try {
-            PTORequest request = ptoService.requestPTO(employeeId, startDate, endDate, type, reason);
+            // Validate request
+            if (!request.isValid()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("success", "false");
+                error.put("error", "Invalid request: employeeId, startDate, endDate, and type are required." +
+                    " Start date must be before end date and not in the past.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            PTORequest ptoRequest;
+
+            // Handle partial day requests
+            if(request.getIsPartialDay() != null && request.getIsPartialDay()) {
+                ptoRequest = ptoService.requestPTOWithPartial(
+                    request.getEmployeeId(), 
+                    request.getStartDate(), 
+                    request.getEndDate(), 
+                    request.getType(), 
+                    request.getReason(), 
+                    request.getIsPartialDay(), 
+                    request.getDaysRequested()
+                );
+            } else {
+                ptoRequest = ptoService.requestPTO(
+                    request.getEmployeeId(),
+                    request.getStartDate(),
+                    request.getEndDate(),
+                    request.getType(),
+                    request.getReason()
+                );
+            }
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "PTO request submitted successfully");
-            response.put("requestId", request.getId());
-            response.put("employeeId", employeeId);
-            response.put("startDate", startDate);
-            response.put("endDate", endDate);
-            response.put("leaveType", type);
-            response.put("status", request.getStatus());
-            response.put("daysRequested", request.getDaysRequested());
-            response.put("requestedAt", request.getRequestedAt());
+            response.put("requestId", ptoRequest.getId());
+            response.put("employeeId", request.getEmployeeId());
+            response.put("startDate", request.getStartDate());
+            response.put("endDate", request.getEndDate());
+            response.put("leaveType", request.getType());
+            response.put("status", ptoRequest.getStatus());
+            response.put("daysRequested", ptoRequest.getDaysRequested());
+            response.put("requestedAt", ptoRequest.getRequestedAt());
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("success", "false");
-            error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-        }
-    }
-
-    /**
-     * Request PTO with Partial Day Support
-     * POST /api/pto/request-with-partial
-     * 
-     * @param employeeId The ID of the employee requesting leave
-     * @param startDate Start date of leave
-     * @param endDate End date of leave
-     * @param type Type of leave
-     * @param reason Reason for leave
-     * @param isPartialDay Whether this is a partial day request
-     * @param daysRequested Number of days (for partial day, e.g., 0.5)
-     * @return Success message with request details
-     */
-    @PostMapping("/request-with-partial")
-    public ResponseEntity<?> requestPTOWithPartial(
-        @RequestParam Long employeeId,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-        @RequestParam LeaveType type,
-        @RequestParam(required = false) String reason,
-        @RequestParam(required = false) Boolean isPartialDay,
-        @RequestParam(required = false) Double daysRequested
-    ) {
-        try {
-            PTORequest request = ptoService.requestPTOWithPartial(employeeId, startDate, endDate, type, reason, isPartialDay, daysRequested);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "PTO request submitted successfully");
-            response.put("requestId", request.getId());
-            response.put("employeeId", employeeId);
-            response.put("startDate", startDate);
-            response.put("endDate", endDate);
-            response.put("leaveType", type);
-            response.put("status", request.getStatus());
-            response.put("isPartialDay", request.getIsPartialDay());
-            response.put("daysRequested", request.getDaysRequested());
+            if (request.getNotes() != null) {
+                response.put("notes", request.getNotes());
+            }
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {

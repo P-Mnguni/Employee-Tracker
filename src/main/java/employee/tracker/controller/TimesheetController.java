@@ -1,5 +1,7 @@
 package employee.tracker.controller;
 
+import employee.tracker.dto.TimesheetRequest;
+
 import employee.tracker.model.Timesheet;
 import employee.tracker.service.TimesheetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,32 +35,43 @@ public class TimesheetController {
      * Submit Timesheet Endpoint
      * POST /api/timesheets/submit
      * 
-     * Input: employeeId, startDate, endDate
+     * Input: TimesheetRequest (JSON body with employeeId, startDate, endDate)
      * 
-     * @param employeeId The ID of the employee submitting the timesheet
-     * @param startDate Start date of the pay period (format: yyyy-MM-dd)
-     * @param endDate End date of the pay period
+     * @param request The timesheet submission request DTO
      * @return Success message with timesheet details or error
      */
     @PostMapping("/submit")
-    public ResponseEntity<?> submitTimesheet(
-        @RequestParam Long employeeId,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+    public ResponseEntity<?> submitTimesheet(@RequestParam TimesheetRequest request) {
         try {
-            Timesheet timesheet = timesheetService.submitTimesheet(employeeId, startDate, endDate);
+            // Validate request
+            if (!request.isValid()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("success", "false");
+                error.put("error", "Invalid request: employeeId, startDate, and endDate are required" + 
+                ", and startDate must be before endDate");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            Timesheet timesheet = timesheetService.submitTimesheet(
+                request.getEmployeeId(),
+                request.getStartDate(),
+                request.getEndDate()
+            );
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "Timesheet submitted successfully");
             response.put("timesheetId", timesheet.getId());
-            response.put("employeeId", employeeId);
-            response.put("startDate", startDate);
-            response.put("endDate", endDate);
+            response.put("employeeId", request.getEmployeeId());
+            response.put("startDate", request.getStartDate());
+            response.put("endDate", request.getEndDate());
             response.put("status", timesheet.getStatus());
             response.put("submittedAt", timesheet.getSubmittedAt());
             response.put("entryCount", timesheet.getTimeEntries().size());
+
+            if (request.getNotes() != null) {
+                response.put("notes", request.getNotes());
+            }
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
@@ -131,7 +144,7 @@ public class TimesheetController {
         try {
             String rejectionReason = (reason != null && !reason.isEmpty()) ? reason : "No reason provided";
 
-            Timesheet timesheet = timesheetService.rejectTimesheet(timesheetId, timesheetId, rejectionReason);
+            Timesheet timesheet = timesheetService.rejectTimesheet(timesheetId, managerId, rejectionReason);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

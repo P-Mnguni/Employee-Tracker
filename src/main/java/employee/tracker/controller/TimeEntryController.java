@@ -1,5 +1,8 @@
 package employee.tracker.controller;
 
+import employee.tracker.dto.ClockInRequest;
+import employee.tracker.dto.ClockOutRequest;
+
 import employee.tracker.model.TimeEntry;
 import employee.tracker.service.TimeEntryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,22 +35,35 @@ public class TimeEntryController {
      * Clock In Endpoint
      * POST /api/time/clock-in
      * 
-     * Input: employeeId (request parameter or JSON body)
+     * Input: ClockInRequest (JSON body with employeeId and optional gpsLocation)
      * 
-     * @param employeeId The ID of the employee clocking in
+     * @param request The clock-in request DTO
      * @return Success message with entry details or error
      */
     @PostMapping("/clock-in")
-    public ResponseEntity<?> clockIn(@RequestParam Long employeeId) {
+    public ResponseEntity<?> clockIn(@RequestParam ClockInRequest request) {
         try {
-            TimeEntry timeEntry = timeEntryService.clockIn(employeeId);
+            // Validate request
+            if (request.getEmployeeId() == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("success", "false");
+                error.put("error", "employeeId is required");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            TimeEntry timeEntry = timeEntryService.clockIn(request.getEmployeeId());
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "Clocked in successfully");
             response.put("entryId", timeEntry.getId());
             response.put("clockInTime", timeEntry.getClockInTime());
-            response.put("employeeId", employeeId);
+            response.put("employeeId", request.getEmployeeId());
+
+            // Optionally store GPS location if provided (future enhancement)
+            if (request.getGpsLocation() != null) {
+                response.put("gpsLocation", request.getGpsLocation());
+            }
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
@@ -62,15 +78,23 @@ public class TimeEntryController {
      * Clock Out Endpoint
      * POST /api/time/clock-out
      * 
-     * Input: employeeId (request parameter or JSON body)
+     * Input: ClockOutRequest (JSON body with employeeId and optional fields)
      * 
-     * @param employeeId The ID of the employee clocking out
+     * @param request The clock-out request DTO
      * @return Success message with updated entry or error
      */
     @PostMapping("/clock-out")
-    public ResponseEntity<?> clockOut(@RequestParam Long employeeId) {
+    public ResponseEntity<?> clockOut(@RequestParam ClockOutRequest request) {
         try {
-            TimeEntry timeEntry = timeEntryService.clockOut(employeeId);
+            // Validate request
+            if (request.getEmployeeId() == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("success", "false");
+                error.put("error", "employeeId is required");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            TimeEntry timeEntry = timeEntryService.clockOut(request.getEmployeeId());
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -78,7 +102,12 @@ public class TimeEntryController {
             response.put("entryId", timeEntry.getId());
             response.put("clockInTime", timeEntry.getClockInTime());
             response.put("clockOutTime", timeEntry.getClockOutTime());
-            response.put("employeeId", employeeId);
+            response.put("employeeId", request.getEmployeeId());
+
+            // Optionally store notes if provided (future enhancement)
+            if (request.getNotes() != null) {
+                response.put("notes", request.getNotes());
+            }
 
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
@@ -93,7 +122,7 @@ public class TimeEntryController {
      * Clock Out with Specific Time Endpoint (for corrections)
      * POST /api/time/clock-out-with-time
      * 
-     * Input: employeeId and clockOutTime (request parameters)
+     * Input: employeeId and clockOutTime (request parameters for admin corrections)
      * 
      * @param employeeId The ID of the employee clocking out
      * @param clockOutTime The specific time to set as clock-out
