@@ -51,6 +51,9 @@ public class PTORequest {
     @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
+    @Column(name = "notes")
+    private String notes;
+
     @Column(name = "rejection_reason")
     private String rejectionReason;
 
@@ -263,6 +266,14 @@ public class PTORequest {
 
     public void setApprovedAt(LocalDateTime approvedAt) {
         this.approvedAt = approvedAt;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     public String getRejectionReason() {
