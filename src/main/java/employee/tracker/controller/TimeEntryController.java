@@ -2,9 +2,12 @@ package employee.tracker.controller;
 
 import employee.tracker.dto.ClockInRequest;
 import employee.tracker.dto.ClockOutRequest;
+import employee.tracker.dto.TimeEntryResponse;
 
+import employee.tracker.mapper.TimeEntryMapper;
 import employee.tracker.model.TimeEntry;
 import employee.tracker.service.TimeEntryService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +34,9 @@ public class TimeEntryController {
     @Autowired
     private TimeEntryService timeEntryService;
 
+    @Autowired
+    private TimeEntryMapper timeEntryMapper;
+
     /**
      * Clock In Endpoint
      * POST /api/time/clock-in
@@ -52,20 +58,14 @@ public class TimeEntryController {
             }
 
             TimeEntry timeEntry = timeEntryService.clockIn(request.getEmployeeId());
+            TimeEntryResponse response = timeEntryMapper.toResponse(timeEntry);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Clocked in successfully");
-            response.put("entryId", timeEntry.getId());
-            response.put("clockInTime", timeEntry.getClockInTime());
-            response.put("employeeId", request.getEmployeeId());
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("message", "Clocked in successfully");
+            result.put("entry", response);
 
-            // Optionally store GPS location if provided (future enhancement)
-            if (request.getGpsLocation() != null) {
-                response.put("gpsLocation", request.getGpsLocation());
-            }
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
@@ -95,21 +95,14 @@ public class TimeEntryController {
             }
 
             TimeEntry timeEntry = timeEntryService.clockOut(request.getEmployeeId());
+            TimeEntryResponse response = timeEntryMapper.toResponse(timeEntry);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Clocked out successfully");
-            response.put("entryId", timeEntry.getId());
-            response.put("clockInTime", timeEntry.getClockInTime());
-            response.put("clockOutTime", timeEntry.getClockOutTime());
-            response.put("employeeId", request.getEmployeeId());
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("message", "Clocked out successfully");
+            result.put("entry", response);
 
-            // Optionally store notes if provided (future enhancement)
-            if (request.getNotes() != null) {
-                response.put("notes", request.getNotes());
-            }
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
@@ -133,16 +126,14 @@ public class TimeEntryController {
         try {
             LocalDateTime parsedTime = LocalDateTime.parse(clockOutTime);
             TimeEntry timeEntry = timeEntryService.clockOutWithTime(employeeId, parsedTime);
+            TimeEntryResponse response = timeEntryMapper.toResponse(timeEntry);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Clocked out successfully with specified time");
-            response.put("entryId", timeEntry.getId());
-            response.put("clockInTime", timeEntry.getClockInTime());
-            response.put("clockOutTime", timeEntry.getClockOutTime());
-            response.put("employeeId", employeeId);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("message", "Clocked out successfully with specified time");
+            result.put("entry", response);
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
@@ -162,14 +153,15 @@ public class TimeEntryController {
     public ResponseEntity<?> getEmployeeEntries(@PathVariable Long employeeId) {
         try {
             List<TimeEntry> entries = timeEntryService.getEmployeeEntries(employeeId);
+            List<TimeEntryResponse> responses = timeEntryMapper.toResponseList(entries);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("employeeId", employeeId);
-            response.put("count", entries.size());
-            response.put("entries", entries);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("employeeId", employeeId);
+            result.put("count", responses.size());
+            result.put("entries", responses);
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
@@ -198,16 +190,17 @@ public class TimeEntryController {
             LocalDateTime end = LocalDateTime.parse(endDate);
 
             List<TimeEntry> entries = timeEntryService.getEmployeeEntriesByDateRange(employeeId, start, end);
+            List<TimeEntryResponse> responses = timeEntryMapper.toResponseList(entries);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("employeeId", employeeId);
-            response.put("startDate", startDate);
-            response.put("endDate", endDate);
-            response.put("count", entries.size());
-            response.put("entries", entries);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("employeeId", employeeId);
+            result.put("startDate", startDate);
+            result.put("endDate", endDate);
+            result.put("count", responses.size());
+            result.put("entries", responses);
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
@@ -228,19 +221,20 @@ public class TimeEntryController {
         try {
             TimeEntry activeSession = timeEntryService.getActiveSession(employeeId);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("employeeId", employeeId);
-            response.put("isClockedIn", activeSession != null);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("employeeId", employeeId);
+            result.put("isClockedIn", activeSession != null);
 
             if (activeSession != null) {
-                response.put("activeEntryId", activeSession.getId());
-                response.put("clockInTime", activeSession.getClockInTime());
+                TimeEntryResponse response = timeEntryMapper.toResponse(activeSession);
+
+                result.put("activeEntryId", response);
             } else {
-                response.put("message", "No active clock-in session found");
+                result.put("message", "No active clock-in session found");
             }
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
@@ -261,12 +255,12 @@ public class TimeEntryController {
         try {
             boolean isClockedIn = timeEntryService.isClockedIn(employeeId);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("employeeId", employeeId);
-            response.put("isClockedIn", isClockedIn);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("employeeId", employeeId);
+            result.put("isClockedIn", isClockedIn);
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
@@ -286,14 +280,15 @@ public class TimeEntryController {
     public ResponseEntity<?> getTodayEntries(@PathVariable Long employeeId) {
         try {
             List<TimeEntry> entries = timeEntryService.getTodayEntries(employeeId);
+            List<TimeEntryResponse> responses = timeEntryMapper.toResponseList(entries);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("employeeId", employeeId);
-            response.put("count", entries.size());
-            response.put("entries", entries);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("employeeId", employeeId);
+            result.put("count", responses.size());
+            result.put("entries", responses);
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
@@ -312,13 +307,14 @@ public class TimeEntryController {
     public ResponseEntity<?> getAllPendingEntries() {
         try {
             List<TimeEntry> pendingEntries = timeEntryService.getAllPendingEntries();
+            List<TimeEntryResponse> responses = timeEntryMapper.toResponseList(pendingEntries);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("count", pendingEntries.size());
-            response.put("pendingEntries", pendingEntries);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("count", responses.size());
+            result.put("pendingEntries", responses);
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
@@ -338,14 +334,15 @@ public class TimeEntryController {
     public ResponseEntity<?> getEmployeePendingEntries(@PathVariable Long employeeId) {
         try {
             List<TimeEntry> pendingEntries = timeEntryService.getEmployeePendingEntries(employeeId);
+            List<TimeEntryResponse> responses = timeEntryMapper.toResponseList(pendingEntries);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("employeeId", employeeId);
-            response.put("count", pendingEntries.size());
-            response.put("pendingEntries", pendingEntries);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("employeeId", employeeId);
+            result.put("count", responses.size());
+            result.put("pendingEntries", responses);
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
