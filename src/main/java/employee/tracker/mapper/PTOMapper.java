@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * employeeId instead of the full Employee object.
  */
 @Component
-public class PTORequestMapper {
+public class PTOMapper {
     
     /**
      * Convert a single PTORequest entity to PTOResponse DTO
