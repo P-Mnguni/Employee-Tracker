@@ -1,7 +1,8 @@
 package employee.tracker.controller;
 
 import employee.tracker.dto.TimesheetRequest;
-
+import employee.tracker.dto.TimesheetResponse;
+import employee.tracker.mapper.TimesheetMapper;
 import employee.tracker.model.Timesheet;
 import employee.tracker.service.TimesheetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class TimesheetController {
     @Autowired
     private TimesheetService timesheetService;
 
+    @Autowired
+    private TimesheetMapper timesheetMapper;
+
     /**
      * Submit Timesheet Endpoint
      * POST /api/timesheets/submit
@@ -51,29 +55,21 @@ public class TimesheetController {
                 ", and startDate must be before endDate");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
             }
-
+            
             Timesheet timesheet = timesheetService.submitTimesheet(
                 request.getEmployeeId(),
                 request.getStartDate(),
                 request.getEndDate()
             );
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Timesheet submitted successfully");
-            response.put("timesheetId", timesheet.getId());
-            response.put("employeeId", request.getEmployeeId());
-            response.put("startDate", request.getStartDate());
-            response.put("endDate", request.getEndDate());
-            response.put("status", timesheet.getStatus());
-            response.put("submittedAt", timesheet.getSubmittedAt());
-            response.put("entryCount", timesheet.getTimeEntries().size());
+            TimesheetResponse response = timesheetMapper.toResponse(timesheet);
 
-            if (request.getNotes() != null) {
-                response.put("notes", request.getNotes());
-            }
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("message", "Timesheet submitted successfully");
+            result.put("timesheet", response);
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
@@ -99,21 +95,14 @@ public class TimesheetController {
     ) {
         try {
             Timesheet timesheet = timesheetService.approveTimesheet(timesheetId, managerId);
+            TimesheetResponse response = timesheetMapper.toResponse(timesheet);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Timesheet approved successfully");
-            response.put("timesheetId", timesheet.getId());
-            response.put("employeeId", timesheet.getEmployee().getId());
-            response.put("employeeName", timesheet.getEmployee().getName());
-            response.put("status", timesheet.getStatus());
-            response.put("approvedBy", timesheet.getApprovedBy().getName());
-            response.put("approvedAt", timesheet.getApprovedAt());
-            response.put("startDate", timesheet.getStartDate());
-            response.put("endDate", timesheet.getEndDate());
-            response.put("entryCount", timesheet.getTimeEntries().size());
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("message", "Timesheet approved successfully");
+            result.put("timesheet", response);
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
@@ -145,21 +134,14 @@ public class TimesheetController {
             String rejectionReason = (reason != null && !reason.isEmpty()) ? reason : "No reason provided";
 
             Timesheet timesheet = timesheetService.rejectTimesheet(timesheetId, managerId, rejectionReason);
+            TimesheetResponse response = timesheetMapper.toResponse(timesheet);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Timesheet rejected successfully");
-            response.put("timesheetId", timesheet.getId());
-            response.put("employeeId", timesheet.getEmployee().getId());
-            response.put("employeeName", timesheet.getEmployee().getName());
-            response.put("status", timesheet.getStatus());
-            response.put("rejectedBy", timesheet.getApprovedBy().getName());
-            response.put("rejectedAt", timesheet.getApprovedAt());
-            response.put("rejectionReason", timesheet.getRejectionReason());
-            response.put("startDate", timesheet.getStartDate());
-            response.put("endDate", timesheet.getEndDate());
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("message", "Timesheet rejected successfully");
+            result.put("timesheet", response);
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
@@ -181,14 +163,15 @@ public class TimesheetController {
     public ResponseEntity<?> getEmployeeTimesheets(@PathVariable Long employeeId) {
         try {
             List<Timesheet> timesheets = timesheetService.getEmployeeTimesheets(employeeId);
+            List<TimesheetResponse> responses = timesheetMapper.toResponseList(timesheets);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("employeeId", employeeId);
-            response.put("count", timesheets.size());
-            response.put("timesheets", timesheets);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("employeeId", employeeId);
+            result.put("count", responses.size());
+            result.put("timesheets", responses);
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
@@ -214,16 +197,17 @@ public class TimesheetController {
     ) {
         try {
             List<Timesheet> timesheets = timesheetService.getEmployeeTimesheetsByDateRange(employeeId, startDate, endDate);
+            List<TimesheetResponse> responses = timesheetMapper.toResponseList(timesheets);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("employeeId", employeeId);
-            response.put("startDate", startDate);
-            response.put("endDate", endDate);
-            response.put("count", timesheets.size());
-            response.put("timesheets", timesheets);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("employeeId", employeeId);
+            result.put("startDate", startDate);
+            result.put("endDate", endDate);
+            result.put("count", responses.size());
+            result.put("timesheets", responses);
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
@@ -242,13 +226,14 @@ public class TimesheetController {
     public ResponseEntity<?> getAllPendingTimesheets() {
         try {
             List<Timesheet> pendingTimesheets = timesheetService.getAllPendingTimesheets();
+            List<TimesheetResponse> responses = timesheetMapper.toResponseList(pendingTimesheets);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("count", pendingTimesheets.size());
-            response.put("pendingTimesheets", pendingTimesheets);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("count", responses.size());
+            result.put("pendingTimesheets", responses);
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
@@ -268,14 +253,15 @@ public class TimesheetController {
     public ResponseEntity<?> getPendingTimesheetsByDepartment(@RequestParam String departmentName) {
         try {
             List<Timesheet> pendingTimesheets = timesheetService.getPendingTimesheetsByDepartment(departmentName);
+            List<TimesheetResponse> responses = timesheetMapper.toResponseList(pendingTimesheets);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("department", departmentName);
-            response.put("count", pendingTimesheets.size());
-            response.put("pendingTimesheet", pendingTimesheets);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("department", departmentName);
+            result.put("count", responses.size());
+            result.put("pendingTimesheet", responses);
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
@@ -295,12 +281,13 @@ public class TimesheetController {
     public ResponseEntity<?> getTimesheetById(@PathVariable Long timesheetId) {
         try {
             Timesheet timesheet = timesheetService.getTimesheetById(timesheetId);
+            TimesheetResponse response = timesheetMapper.toResponse(timesheet);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("timesheet", timesheet);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("timesheet", response);
             
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
@@ -321,15 +308,15 @@ public class TimesheetController {
         try {
             long[] stats = timesheetService.getTimesheetStatistics(employeeId);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("employeeId", employeeId);
-            response.put("totalTimesheets", stats[0]);
-            response.put("pendingTimesheets", stats[1]);
-            response.put("approvedTimesheets", stats[2]);
-            response.put("rejectedTimesheets", stats[3]);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("employeeId", employeeId);
+            result.put("totalTimesheets", stats[0]);
+            result.put("pendingTimesheets", stats[1]);
+            result.put("approvedTimesheets", stats[2]);
+            result.put("rejectedTimesheets", stats[3]);
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
@@ -356,14 +343,14 @@ public class TimesheetController {
         try {
             boolean exists = timesheetService.timesheetExistsForPeriod(employeeId, startDate, endDate);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("employeeId", employeeId);
-            response.put("startDate", startDate);
-            response.put("endDate", endDate);
-            response.put("exists", exists);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("employeeId", employeeId);
+            result.put("startDate", startDate);
+            result.put("endDate", endDate);
+            result.put("exists", exists);
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("success", "false");
