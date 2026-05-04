@@ -171,4 +171,46 @@ public class GlobalExceptionHandler {
 
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    // === Custom Exceptions ===
+
+    /**
+     * Handles ResourceNotFoundException - Resource not found (404)
+     */
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<?> handleResourceNotFound(ResourceNotFoundException ex, WebRequest request) {
+        Map<String, Object> errorResponse = buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Handles BadRequestException - Invalid input or business rule violation (400)
+     */
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<?> handleBadRequest(BadRequestException ex, WebRequest request) {
+        Map<String, Object> errorResponse = buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handles UnauthorizedActionException - Permission denied (403)
+     */
+    @ExceptionHandler(UnauthorizedActionException.class)
+    public ResponseEntity<?> handleUnauthorizedAction(UnauthorizedActionException ex, WebRequest request) {
+        Map<String, Object> errorResponse = buildErrorResponse(HttpStatus.FORBIDDEN, ex.getMessage(), request);
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
+
+    /**
+     * Handles ConflictException - Data conflict (409)
+     */
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<?> handleConflict(ConflictException ex, WebRequest request) {
+        Map<String, Object> errorRespone = buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), request);
+
+        return new ResponseEntity<>(errorRespone, HttpStatus.CONFLICT);
+    }
 }
