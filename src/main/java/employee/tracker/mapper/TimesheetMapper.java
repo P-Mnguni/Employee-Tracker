@@ -42,6 +42,21 @@ public class TimesheetMapper {
             response.setEmployeeId(entity.getEmployee().getId());
         }
 
+        // Set approved by name if present
+        if (entity.getApprovedBy() != null) {
+            response.setApprovedBy(entity.getApprovedBy().getName());
+        }
+
+        // Set approved at entity
+        if (entity.getApprovedAt() != null) {
+            response.setApprovedAt(entity.getApprovedAt());
+        }
+
+        // Set rejection reason if present
+        if (entity.getRejectionReason() != null) {
+            response.setRejectionReason(entity.getRejectionReason());
+        }
+
         // Convert time entries using TimeEntryMapper
         if (entity.getTimeEntries() != null && !entity.getTimeEntries().isEmpty()) {
             List<TimeEntryResponse> entryResponses = timeEntryMapper.toResponseList(entity.getTimeEntries());

@@ -75,6 +75,22 @@ public class TimesheetResponse {
      * Total hours worked across all entries
      */
     private Double totalHours;
+
+    
+    /**
+     * The manager approving the timesheet
+     */
+    private String approvedBy;
+
+    /**
+     * Time when timesheet was approved/rejected
+     */
+    private LocalDateTime approvedAt;
+
+    /**
+     * Reason for rejecting the timesheet
+     */
+    private String rejectionReason;
     
     public TimesheetResponse() {}
 
@@ -186,6 +202,30 @@ public class TimesheetResponse {
         this.totalHours = totalHours;
     }
 
+    public String getApprovedBy() {
+        return approvedBy;
+    }
+
+    public void setApprovedBy(String approvedBy) {
+        this.approvedBy = approvedBy;
+    }
+
+    public LocalDateTime getApprovedAt() {
+        return approvedAt;
+    }
+
+    public void setApprovedAt(LocalDateTime approvedAt) {
+        this.approvedAt = approvedAt;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+
     // Helper method
 
     /**
@@ -212,6 +252,9 @@ public class TimesheetResponse {
                 ", endDate=" + endDate +
                 ", submittedAt=" + submittedAt +
                 ", employeeId=" + employeeId +
+                ", approvedBy=" + approvedBy +
+                ", approvedAt=" + approvedAt +
+                ", rejectionReason=" + rejectionReason +
                 ", entriesCount=" + (entries != null ? entries.size() : 0) +
                 ", totalHours=" + totalHours +
                 '}';
