@@ -5,15 +5,15 @@ operations for the Employee Tracker System.
 
 ## 📊 Repository Overview
 
-### Repository Interfaces (4)
+### Repository Interfaces
 
-```
-|     Repository       |   Entity   |         Purpose          |                              Key Custom Queries                              |
-|----------------------|------------|--------------------------|------------------------------------------------------------------------------|
-| EmployeeRepository   | Employee   | Basic CRUD operations    | None yet (extends JpaRepository)                                             |
-| TimeEntryRepository  | TimeEntry  | Clock-in/out records     | findByEmployee, date ranges, open entries, status filtering                  |
-| TimesheetRepository  | Timesheet  | Timesheet management     | findByStatus, date ranges, department filtering, approval workflow           |
-| PTORequestRepository | PTORequest | Leave request management | findByStatus, overlapping requests, leave type filtering, conflict detection |
+```md
+|     *Repository*       |  *Entity*  |        *Purpose*         |                            *Key Custom Queries*                              |
+|------------------------|------------|--------------------------|------------------------------------------------------------------------------|
+|**EmployeeRepository**  | Employee   | Basic CRUD operations    | None yet (extends JpaRepository)                                             |
+|**TimeEntryRepository** | TimeEntry  | Clock-in/out records     | findByEmployee, date ranges, open entries, status filtering                  |
+|**TimesheetRepository** | Timesheet  | Timesheet management     | findByStatus, date ranges, department filtering, approval workflow           |
+|**PTORequestRepository**| PTORequest | Leave request management | findByStatus, overlapping requests, leave type filtering, conflict detection |
 ```
 
 ## 🗄️ Repository Details
