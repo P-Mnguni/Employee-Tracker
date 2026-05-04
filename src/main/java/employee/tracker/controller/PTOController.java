@@ -48,53 +48,39 @@ public class PTOController {
      */
     @PostMapping("/request")
     public ResponseEntity<?> requestPTO(@RequestBody PTORequestDTO request) {
-        try {
-            // Validate request
-            if (!request.isValid()) {
-                Map<String, String> error = new HashMap<>();
-                error.put("success", "false");
-                error.put("error", "Invalid request: employeeId, startDate, endDate, and type are required." +
-                    " Start date must be before end date and not in the past.");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-            }
 
-            PTORequest ptoRequest;
+        PTORequest ptoRequest;
 
-            // Handle partial day requests
-            if(request.getIsPartialDay() != null && request.getIsPartialDay()) {
-                ptoRequest = ptoService.requestPTOWithPartial(
-                    request.getEmployeeId(), 
-                    request.getStartDate(), 
-                    request.getEndDate(), 
-                    request.getType(), 
-                    request.getReason(), 
-                    request.getIsPartialDay(), 
-                    request.getDaysRequested()
-                );
-            } else {
-                ptoRequest = ptoService.requestPTO(
-                    request.getEmployeeId(),
-                    request.getStartDate(),
-                    request.getEndDate(),
-                    request.getType(),
-                    request.getReason()
-                );
-            }
-
-            PTOResponse response = ptoMapper.toResponse(ptoRequest);
-
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("message", "PTO request submitted successfully");
-            result.put("request", response);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(result);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("success", "false");
-            error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        // Handle partial day requests
+        if(request.getIsPartialDay() != null && request.getIsPartialDay()) {
+            ptoRequest = ptoService.requestPTOWithPartial(
+                request.getEmployeeId(), 
+                request.getStartDate(), 
+                request.getEndDate(), 
+                request.getType(), 
+                request.getReason(), 
+                request.getIsPartialDay(), 
+                request.getDaysRequested()
+            );
+        } else {
+            ptoRequest = ptoService.requestPTO(
+                request.getEmployeeId(),
+                request.getStartDate(),
+                request.getEndDate(),
+                request.getType(),
+                request.getReason()
+            );
         }
+
+        PTOResponse response = ptoMapper.toResponse(ptoRequest);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("message", "PTO request submitted successfully");
+        result.put("request", response);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        
     }
 
     /**
@@ -109,24 +95,17 @@ public class PTOController {
      */
     @PutMapping("/{requestId}/approve")
     public ResponseEntity<?> approvePTO(@PathVariable Long requestId, @RequestParam Long managerId) {
-        try {
-            PTORequest request = ptoService.approvePTO(requestId, managerId);
-            PTOResponse response = ptoMapper.toResponse(request);
+        
+        PTORequest request = ptoService.approvePTO(requestId, managerId);
+        PTOResponse response = ptoMapper.toResponse(request);
 
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("message", "PTO request approved successfully");
-            result.put("request", response);
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("message", "PTO request approved successfully");
+        result.put("request", response);
 
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("success", "false");
-            error.put("error", e.getMessage());
-
-            HttpStatus status = e.getMessage().contains("not found") ? HttpStatus.NOT_FOUND : HttpStatus.BAD_REQUEST;
-            return ResponseEntity.status(status).body(error);
-        }
+        return ResponseEntity.ok(result);
+        
     }
 
     /**
@@ -146,26 +125,19 @@ public class PTOController {
         @RequestParam Long managerId,
         @RequestParam(required = false) String reason
     ) {
-        try {
-            String rejectionReason = (reason != null && !reason.isEmpty()) ? reason : "No reason provided";
+        
+        String rejectionReason = (reason != null && !reason.isEmpty()) ? reason : "No reason provided";
 
-            PTORequest request = ptoService.rejectPTO(requestId, managerId, rejectionReason);
-            PTOResponse response = ptoMapper.toResponse(request);
+        PTORequest request = ptoService.rejectPTO(requestId, managerId, rejectionReason);
+        PTOResponse response = ptoMapper.toResponse(request);
 
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("message", "PTO request rejected successfully");
-            result.put("request", response);
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("message", "PTO request rejected successfully");
+        result.put("request", response);
 
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("success", "false");
-            error.put("error", e.getMessage());
-
-            HttpStatus status = e.getMessage().contains("not found") ? HttpStatus.NOT_FOUND : HttpStatus.BAD_REQUEST;
-            return ResponseEntity.status(status).body(error);
-        }
+        return ResponseEntity.ok(result);
+        
     }
 
     /**
@@ -177,26 +149,21 @@ public class PTOController {
      */
     @PutMapping("/{requestId}/cancel")
     public ResponseEntity<?> cancelPTORequest(@PathVariable Long requestId) {
-        try {
-            PTORequest request = ptoService.cancelPTORequest(requestId);
-            PTOResponse response = ptoMapper.toResponse(request);
+        
+        PTORequest request = ptoService.cancelPTORequest(requestId);
+        PTOResponse response = ptoMapper.toResponse(request);
 
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("message", "PTO request cancelled successfully");
-            result.put("requestId", response);
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("message", "PTO request cancelled successfully");
+        result.put("requestId", response);
 
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("success", "false");
-            error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-        }
+        return ResponseEntity.ok(result);
+        
     }
 
     /**
-     * Get All Requests for an Employee
+     * Get All PTO Requests for an Employee
      * GET /api/pto/employee/{employeeId}
      * 
      * @param employeeId The ID of the employee
@@ -204,23 +171,18 @@ public class PTOController {
      */
     @GetMapping("/employee/{employeeId}")
     public ResponseEntity<?> getEmployeeRequests(@PathVariable Long employeeId) {
-        try {
-            List<PTORequest> requests = ptoService.getEmployeeRequests(employeeId);
-            List<PTOResponse> responses = ptoMapper.toResponseList(requests);
+        
+        List<PTORequest> requests = ptoService.getEmployeeRequests(employeeId);
+        List<PTOResponse> responses = ptoMapper.toResponseList(requests);
 
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("employeeId", employeeId);
-            result.put("count", responses.size());
-            result.put("requests", responses);
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("employeeId", employeeId);
+        result.put("count", responses.size());
+        result.put("requests", responses);
 
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("success", "false");
-            error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-        }
+        return ResponseEntity.ok(result);
+        
     }
 
     /**
@@ -233,24 +195,19 @@ public class PTOController {
      */
     @GetMapping("/employee/{employeeId}/status")
     public ResponseEntity<?> getEmployeeRequestsByStatus(@PathVariable Long employeeId, @RequestParam PTOStatus status) {
-        try {
-            List<PTORequest> requests = ptoService.getEmployeeRequestsByStatus(employeeId, status);
-            List<PTOResponse> responses = ptoMapper.toResponseList(requests);
+    
+        List<PTORequest> requests = ptoService.getEmployeeRequestsByStatus(employeeId, status);
+        List<PTOResponse> responses = ptoMapper.toResponseList(requests);
 
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("employeeId", employeeId);
-            result.put("status", status);
-            result.put("count", responses.size());
-            result.put("requests", responses);
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("employeeId", employeeId);
+        result.put("status", status);
+        result.put("count", responses.size());
+        result.put("requests", responses);
 
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("success", "false");
-            error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-        }
+        return ResponseEntity.ok(result);
+        
     }
 
     /**
@@ -266,24 +223,19 @@ public class PTOController {
         @PathVariable Long employeeId,
         @RequestParam LeaveType leaveType
     ) {
-        try {
-            List<PTORequest> requests = ptoService.getEmployeeRequestsByType(employeeId, leaveType);
-            List<PTOResponse> responses = ptoMapper.toResponseList(requests);
+        
+        List<PTORequest> requests = ptoService.getEmployeeRequestsByType(employeeId, leaveType);
+        List<PTOResponse> responses = ptoMapper.toResponseList(requests);
             
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("employeeId", employeeId);
-            result.put("leaveType", leaveType);
-            result.put("count", responses.size());
-            result.put("requests", responses);
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("employeeId", employeeId);
+        result.put("leaveType", leaveType);
+        result.put("count", responses.size());
+        result.put("requests", responses);
             
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("success", "false");
-            error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-        }
+        return ResponseEntity.ok(result);
+        
     }
 
     /**
@@ -294,22 +246,17 @@ public class PTOController {
      */
     @GetMapping("/pending")
     public ResponseEntity<?> getAllPendingRequests() {
-        try {
-            List<PTORequest> pendingRequests = ptoService.getAllPendingRequests();
-            List<PTOResponse> responses = ptoMapper.toResponseList(pendingRequests);
+        
+        List<PTORequest> pendingRequests = ptoService.getAllPendingRequests();
+        List<PTOResponse> responses = ptoMapper.toResponseList(pendingRequests);
             
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("count", responses.size());
-            result.put("pendingRequests", responses);
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("count", responses.size());
+        result.put("pendingRequests", responses);
             
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("success", "false");
-            error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-        }
+        return ResponseEntity.ok(result);
+        
     }
 
     /**
@@ -321,23 +268,18 @@ public class PTOController {
      */
     @GetMapping("/pending/department")
     public ResponseEntity<?> getPendingRequestsByDepartment(@RequestParam String departmentName) {
-        try {
-            List<PTORequest> pendingRequests = ptoService.getPendingRequestsByDepartment(departmentName);
-            List<PTOResponse> responses = ptoMapper.toResponseList(pendingRequests);
+        
+        List<PTORequest> pendingRequests = ptoService.getPendingRequestsByDepartment(departmentName);
+        List<PTOResponse> responses = ptoMapper.toResponseList(pendingRequests);
             
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("department", departmentName);
-            result.put("count", responses.size());
-            result.put("pendingRequests", responses);
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("department", departmentName);
+        result.put("count", responses.size());
+        result.put("pendingRequests", responses);
             
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("success", "false");
-            error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-        }
+        return ResponseEntity.ok(result);
+        
     }
 
     /**
@@ -349,21 +291,16 @@ public class PTOController {
      */
     @GetMapping("/{requestId}")
     public ResponseEntity<?> getRequestById(@PathVariable Long requestId) {
-        try {
-            PTORequest request = ptoService.getRequestByID(requestId);
-            PTOResponse response = ptoMapper.toResponse(request);
+        
+        PTORequest request = ptoService.getRequestByID(requestId);
+        PTOResponse response = ptoMapper.toResponse(request);
             
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("request", response);
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("request", response);
             
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("success", "false");
-            error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-        }
+        return ResponseEntity.ok(result);
+        
     }
 
     /**
@@ -377,22 +314,17 @@ public class PTOController {
     @GetMapping("/employee/{employeeId}/balance")
     public ResponseEntity<?> getTotalPTODaysTaken(@PathVariable Long employeeId,
                                                    @RequestParam int year) {
-        try {
-            double totalDays = ptoService.getTotalPTODaysTaken(employeeId, year);
+        
+        double totalDays = ptoService.getTotalPTODaysTaken(employeeId, year);
             
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("employeeId", employeeId);
-            result.put("year", year);
-            result.put("totalDaysTaken", totalDays);
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("employeeId", employeeId);
+        result.put("year", year);
+        result.put("totalDaysTaken", totalDays);
             
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("success", "false");
-            error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-        }
+        return ResponseEntity.ok(result);
+        
     }
 
     /**
@@ -404,24 +336,19 @@ public class PTOController {
      */
     @GetMapping("/employee/{employeeId}/statistics")
     public ResponseEntity<?> getPTOStatistics(@PathVariable Long employeeId) {
-        try {
-            long[] stats = ptoService.getPTOStatistics(employeeId);
+        
+        long[] stats = ptoService.getPTOStatistics(employeeId);
             
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("employeeId", employeeId);
-            result.put("totalRequests", stats[0]);
-            result.put("pendingRequests", stats[1]);
-            result.put("approvedRequests", stats[2]);
-            result.put("rejectedRequests", stats[3]);
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("employeeId", employeeId);
+        result.put("totalRequests", stats[0]);
+        result.put("pendingRequests", stats[1]);
+        result.put("approvedRequests", stats[2]);
+        result.put("rejectedRequests", stats[3]);
             
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("success", "false");
-            error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-        }
+        return ResponseEntity.ok(result);
+        
     }
 
     /**
@@ -437,22 +364,17 @@ public class PTOController {
     public ResponseEntity<?> hasOverlappingRequest(@PathVariable Long employeeId,
                                                     @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
                                                     @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        try {
-            boolean hasConflict = ptoService.hasOverlappingRequest(employeeId, startDate, endDate);
+        
+        boolean hasConflict = ptoService.hasOverlappingRequest(employeeId, startDate, endDate);
             
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("employeeId", employeeId);
-            result.put("startDate", startDate);
-            result.put("endDate", endDate);
-            result.put("hasConflict", hasConflict);
-            
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("success", "false");
-            error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("employeeId", employeeId);
+        result.put("startDate", startDate);
+        result.put("endDate", endDate);
+        result.put("hasConflict", hasConflict);
+        
+        return ResponseEntity.ok(result);
+        
     }
 }
